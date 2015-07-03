@@ -17,7 +17,7 @@ create table favorite_foods_index (
     primary key(food, user_id)
 );
 
-create keyspace movielens;
+create keyspace movielens WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
 use movielens;
 
 create table movie (
@@ -27,6 +27,10 @@ create table movie (
     tags set<text>
 );
 
-create table user (
-
-)
+create table rating_by_movie (
+    movie_id int,
+    user_id int,
+    rating int,
+    timestamp int,
+    primary key(movie_id, user_id)
+);
