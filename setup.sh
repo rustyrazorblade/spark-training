@@ -9,3 +9,5 @@ if [ ! -f "spark-cassandra-connector-assembly-1.4.0-M1-SNAPSHOT.jar" ]; then
 fi
 
 pip install -r requirements.txt
+
+cqlsh -f setup.cql
