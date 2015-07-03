@@ -4,12 +4,15 @@ use users;
 create table user (
     user_id int primary key,
     name text,
+    age int,
     favorite_foods set<text>
 );
 
-insert into user (user_id, name, favorite_foods) VALUES (1, 'Jon', {'Bacon', 'Cheese'});
-insert into user (user_id, name, favorite_foods) VALUES (2, 'Dani', {'Wine', 'Kale', 'Pizza'});
-insert into user (user_id, name, favorite_foods) VALUES (3, 'Patrick', {'Pie', 'Steak', 'Muffins'});
+insert into user (user_id, name, age, favorite_foods) VALUES (1, 'Jon', 34, {'Bacon', 'Cheese'});
+insert into user (user_id, name, age, favorite_foods) VALUES (2, 'Dani', 22, {'Wine', 'Kale', 'Pizza'});
+insert into user (user_id, name, age, favorite_foods) VALUES (3, 'Patrick', 108, {'Pie', 'Steak', 'Muffins'});
+insert into user (user_id, name, age, favorite_foods) VALUES (4, 'Baby Luke', 1, {'Candy', 'Fear'});
+insert into user (user_id, name, age, favorite_foods) VALUES (5, 'Larry', 10, {'Anger'});
 
 create table favorite_foods_index (
     food text,
