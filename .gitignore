@@ -59,3 +59,6 @@ packer_cache/
 spark-cassandra-connector-assembly-1.4.0-M1-SNAPSHOT.jar
 
 .ipynb_checkpoints/
+
+ml-10M100K/
+ml-10m.zip
