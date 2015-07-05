@@ -1,5 +1,5 @@
-create KEYSPACE users WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
-use users;
+create KEYSPACE training WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+use training;
 
 create table user (
     user_id int primary key,
@@ -19,9 +19,6 @@ create table favorite_foods_index (
     user_id int,
     primary key(food, user_id)
 );
-
-create keyspace movielens WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
-use movielens;
 
 create table movie (
     movie_id int primary key,
