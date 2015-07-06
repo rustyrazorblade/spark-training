@@ -1,3 +1,5 @@
+drop keyspace training;
+
 create KEYSPACE training WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
 use training;
 
