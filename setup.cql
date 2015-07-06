@@ -23,7 +23,6 @@ create table favorite_foods_index (
 create table movie (
     movie_id int primary key,
     name text,
-    year int,
     tags set<text>
 );
 
