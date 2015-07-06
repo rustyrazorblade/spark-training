@@ -62,3 +62,6 @@ spark-cassandra-connector-assembly-1.4.0-M1-SNAPSHOT.jar
 
 ml-10M100K/
 ml-10m.zip
+
+ml-100k.zip
+ml-100k/

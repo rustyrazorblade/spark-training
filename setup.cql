@@ -29,7 +29,19 @@ create table movie (
 create table rating_by_movie (
     movie_id int,
     user_id int,
-    rating int,
+    rating decimal,
     timestamp int,
     primary key(movie_id, user_id)
+);
+
+create table average_rating (
+    movie_id int primary key,
+    rating float
+);
+
+create table movies_by_tag (
+    tag text,
+    movie_id int,
+    name text,
+    primary key(tag, movie_id)
 );
