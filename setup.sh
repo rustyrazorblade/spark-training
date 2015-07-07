@@ -2,7 +2,7 @@
 if [ ! -d "ml-10M100K" ]; then
     wget http://files.grouplens.org/datasets/movielens/ml-10m.zip
     unzip ml-10m.zip
-    
+
     (cd ml-10M100K;
     head -n 10000 ratings.dat > ratings.subset.dat)
 fi
