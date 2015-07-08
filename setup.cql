@@ -22,6 +22,13 @@ create table favorite_foods_index (
     primary key(food, user_id)
 );
 
+create table adults (
+    age int,
+    user_id int,
+    name text,
+    primary key(age, user_id)
+);
+
 create table movie (
     movie_id int primary key,
     name text,
