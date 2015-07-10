@@ -1,0 +1,4 @@
+spark-submit --jars spark-cassandra-connector-assembly-1.4.0-M1-SNAPSHOT.jar \
+             --driver-class-path spark-cassandra-connector-assembly-1.4.0-M1-SNAPSHOT.jar \
+             --conf spark.cassandra.connection.host=127.0.0.1 \
+             --master spark://127.0.0.1:7077 stream.py
