@@ -15,7 +15,7 @@ class Movie(Model):
     name = Text()
     tags = Set(Text)
 
-movies = Movie.objects()[:]
+movies = Movie.objects().limit(20)[:]
 
 
 # creates a socket
@@ -37,7 +37,7 @@ def send_ratings(conn):
         rating = random.randint(1, 5)
         movie_id = random.choice(movies).movie_id
         user_id = random.randint(1, 1000)
-        conn.sendall("{}::{}::{}::{}\n".format(user_id, movie_id, rating, int(time.time())))
+        conn.sendall("{}::{}::{}::{}\n".format(user_id, movie_id, rating, time.time()))
 
 
 # when connected, generate movie ratings data
