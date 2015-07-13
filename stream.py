@@ -31,7 +31,7 @@ def process_ratings(time, rdd):
     #
     row_rdd = rdd.map(lambda (movie_id, user_id, rating, timestamp):
                           Row(movie_id=int(movie_id), user_id=int(user_id),
-                              rating=int(rating), timestamp=float(timestamp)))
+                              rating=int(rating), timestamp=uuid1())
 
     df = sql.createDataFrame(row_rdd)
 
