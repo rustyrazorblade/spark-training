@@ -1,8 +1,9 @@
 from pyspark.sql import SQLContext, Row
 from pyspark import SparkContext, SparkConf
 from pyspark.streaming import StreamingContext
-from pyspark.streaming.kafka import KafkaUtils
 from uuid import uuid1
+
+from time import time as now
 
 conf = SparkConf() \
     .setAppName("ratings stream") \
@@ -29,16 +30,30 @@ ratings = lines.map(lambda line: line.split("::"))
 def process_ratings(time, rdd):
     print "============== %s ============" % str(time)
     #
+    ts = now()
     row_rdd = rdd.map(lambda (movie_id, user_id, rating, timestamp):
                           Row(movie_id=int(movie_id), user_id=int(user_id),
-                              rating=int(rating), timestamp=uuid1())
+                              rating=int(rating), ts=ts))
+
 
     df = sql.createDataFrame(row_rdd)
+    df.registerTempTable("ratings")
 
     # I want to get the average rating, and count of the number of ratings for each movie and persist it to cassandra
     from pyspark.sql import functions as F
-    agg = df.groupBy("movie_id").agg(F.avg(df.rating).alias("avg"), F.count(df.rating).alias('count'), F.max(df.timestamp)).collect()
-    writer(agg, "movie_stream_ratings")
+
+    movie_to_ts = sql.sql("select distinct movie_id, ts from ratings")
+    movie_to_ts.registerTempTable("movie_ts")
+
+    # going to join this against itself
+    agg = sql.sql("SELECT movie_id, avg(rating) as a, count(rating) as c from ratings group by movie_id")
+    agg.registerTempTable("movie_aggregates")
+
+    matched = sql.sql("select a.movie_id, a.a, a.c, b.ts as ts from movie_aggregates a join movie_ts b on a.movie_id = b.movie_id  ")
+
+    writer(matched, "movie_stream_ratings")
+
+    print "========== DONE WRITING ============== "
 
 
 ratings.foreachRDD(process_ratings)

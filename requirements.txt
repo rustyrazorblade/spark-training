@@ -1,10 +1,14 @@
+## The following requirements were added by pip --freeze:
 Jinja2==2.7.3
 MarkupSafe==0.23
 backports.ssl-match-hostname==3.4.0.2
+cassandra-driver==2.5.1
 certifi==2015.04.28
 functools32==3.2.3-1
+futures==3.0.3
 gnureadline==6.3.3
 ipython==3.2.0
+ipython-extensions==0.2
 jsonschema==2.5.1
 matplotlib==1.4.3
 mock==1.0.1
