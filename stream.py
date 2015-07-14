@@ -32,18 +32,21 @@ def getSqlContextInstance(sparkContext):
 
 writer = create_writer(sql, "training")
 
+# https://spark.apache.org/docs/latest/api/python/pyspark.streaming.html#pyspark.streaming.StreamingContext.socketTextStream
 lines = stream.socketTextStream("127.0.0.1", 6000)
 
-ratings = lines.map(lambda line: line.split("::"))
+
 
 def process_ratings(time, rdd):
     print "============== %s ============" % str(time)
     #
     ts = now()
-    print ts
+    print "TIME AS now(): {}".format(ts)
+
     local_sql = getSqlContextInstance(rdd.context)
 
-    row_rdd = rdd.map(lambda (user_id, movie_id, rating, timestamp):
+    ratings = rdd.map(lambda line: line.split("::"))
+    row_rdd = ratings.map(lambda (user_id, movie_id, rating, timestamp):
                           Row(movie_id=int(movie_id), user_id=int(user_id),
                               rating=int(rating), ts=ts))
 
@@ -68,7 +71,7 @@ def process_ratings(time, rdd):
     print "========== DONE WRITING ============== "
 
 
-ratings.foreachRDD(process_ratings)
+lines.foreachRDD(process_ratings)
 
 stream.start()
 stream.awaitTermination()
