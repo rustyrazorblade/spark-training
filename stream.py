@@ -49,7 +49,7 @@ def process_ratings(time, rdd):
     agg = sql.sql("SELECT movie_id, avg(rating) as a, count(rating) as c from ratings group by movie_id")
     agg.registerTempTable("movie_aggregates")
 
-    matched = sql.sql("select a.movie_id, a.a, a.c, b.ts as ts from movie_aggregates a join movie_ts b on a.movie_id = b.movie_id  ")
+    matched = sql.sql("select a.movie_id, b.ts, a.a, a.c from movie_aggregates a join movie_ts b on a.movie_id = b.movie_id  ")
 
     writer(matched, "movie_stream_ratings")
 
