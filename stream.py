@@ -3,7 +3,7 @@ from pyspark import SparkContext, SparkConf
 from pyspark.streaming import StreamingContext
 from uuid import uuid1
 
-from time import time as now
+
 
 conf = SparkConf() \
     .setAppName("ratings stream") \
@@ -40,10 +40,12 @@ lines = stream.socketTextStream("127.0.0.1", 6000)
 def process_ratings(time, rdd):
     print "============== %s ============" % str(time)
     #
-    ts = now()
-    print "TIME AS now(): {}".format(ts)
+    # ts = now()
+    # print "TIME AS now(): {}".format(ts)
 
     local_sql = getSqlContextInstance(rdd.context)
+    from datetime import datetime
+    ts = datetime.now()
 
     ratings = rdd.map(lambda line: line.split("::"))
     row_rdd = ratings.map(lambda (user_id, movie_id, rating, timestamp):
@@ -51,22 +53,37 @@ def process_ratings(time, rdd):
                               rating=int(rating), ts=ts))
 
 
-    df = local_sql.createDataFrame(row_rdd)
-    df.registerTempTable("ratings")
+    ratings = local_sql.createDataFrame(row_rdd)
+    ratings.show()
+    # df.registerTempTable("ratings")
 
     # I want to get the average rating, and count of the number of ratings for each movie and persist it to cassandra
     from pyspark.sql import functions as F
+    # movie_ids = ratings.select("movie_id").distinct()
+    # movie_ids.show()
 
-    movie_to_ts = local_sql.sql("select distinct movie_id, ts from ratings")
-    movie_to_ts.registerTempTable("movie_ts")
+    # create table movie_ratings_time_series ( movie_id int, ts timeuuid, rating float, primary key (movie_id, ts) );
+
+    avg_ratings = ratings.groupBy("movie_id", "ts").agg(F.avg(ratings.rating).alias('rating'))
+
+    avg_ratings.show()
+
+    avg_ratings.write.format("org.apache.spark.sql.cassandra").\
+                options(table="movie_ratings_time_series", keyspace="training").\
+                save(mode="append")
+
+    # writer("movie_ratings_time_series", avg_ratings)
+
+    # movie_to_ts = local_sql.sql("select distinct movie_id, ts from ratings")
+    # movie_to_ts.registerTempTable("movie_ts")
 
     # going to join this against itself
-    agg = local_sql.sql("SELECT movie_id, avg(rating) as a, count(rating) as c from ratings group by movie_id")
-    agg.registerTempTable("movie_aggregates")
+    # agg = local_sql.sql("SELECT movie_id, avg(rating) as a, count(rating) as c from ratings group by movie_id")
+    # agg.registerTempTable("movie_aggregates")
 
-    matched = local_sql.sql("select a.movie_id, b.ts, a.a, a.c from movie_aggregates a join movie_ts b on a.movie_id = b.movie_id  ")
+    # matched = local_sql.sql("select a.movie_id, b.ts, a.a, a.c from movie_aggregates a join movie_ts b on a.movie_id = b.movie_id  ")
 
-    writer(matched, "movie_stream_ratings")
+    # writer(matched, "movie_stream_ratings")
 
     print "========== DONE WRITING ============== "
 

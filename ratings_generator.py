@@ -18,7 +18,7 @@ def send_ratings(conn):
     print "Sending ratings"
     for x in range(random.randint(20, 100)):
         rating = random.randint(1, 5)
-        movie_id = random.randint(1, 20)
+        movie_id = random.randint(1, 50)
         user_id = random.randint(1, 1000)
         conn.sendall("{}::{}::{}::{}\n".format(user_id, movie_id, rating, time.time()))
 
