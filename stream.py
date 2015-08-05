@@ -35,8 +35,6 @@ writer = create_writer(sql, "training")
 # https://spark.apache.org/docs/latest/api/python/pyspark.streaming.html#pyspark.streaming.StreamingContext.socketTextStream
 lines = stream.socketTextStream("127.0.0.1", 6000)
 
-
-
 def process_ratings(time, rdd):
     print "============== %s ============" % str(time)
     #
@@ -47,14 +45,23 @@ def process_ratings(time, rdd):
     from datetime import datetime
     ts = datetime.now()
 
+    # from pyspark.sql.types import *
+    # schema = StructType([
+    #     StructField("user_id", IntegerType(), True),
+    #     StructField("movie_id", IntegerType(), True),
+    #     StructField("rating", FloatType(), True),
+    #     StructField("timestamp")
+    #     ]
+    #     )
+
     ratings = rdd.map(lambda line: line.split("::"))
     row_rdd = ratings.map(lambda (user_id, movie_id, rating, timestamp):
                           Row(movie_id=int(movie_id), user_id=int(user_id),
-                              rating=int(rating), ts=ts))
+                              rating=float(rating), ts=ts))
 
 
-    ratings = local_sql.createDataFrame(row_rdd)
-    ratings.show()
+    ratings = local_sql.createDataFrame(row_rdd, samplingRatio=1)
+    # ratings.show()
     # df.registerTempTable("ratings")
 
     # I want to get the average rating, and count of the number of ratings for each movie and persist it to cassandra
@@ -65,8 +72,6 @@ def process_ratings(time, rdd):
     # create table movie_ratings_time_series ( movie_id int, ts timeuuid, rating float, primary key (movie_id, ts) );
 
     avg_ratings = ratings.groupBy("movie_id", "ts").agg(F.avg(ratings.rating).alias('rating'))
-
-    avg_ratings.show()
 
     avg_ratings.write.format("org.apache.spark.sql.cassandra").\
                 options(table="movie_ratings_time_series", keyspace="training").\

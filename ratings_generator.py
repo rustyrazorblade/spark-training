@@ -2,28 +2,29 @@ from socket import *
 import time
 import random
 
+print "Binding socket"
 
 s = socket(AF_INET, SOCK_STREAM)
 s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 s.bind(('127.0.0.1', 6000))
 
-print "Waiting for socket 6000"
-s.listen(1)
+print "Socket bound"
+print "Opening movie ratings"
 
-conn, addr = s.accept()
+with open("ml-10M100K/ratings.dat", 'r') as fp:
 
-def send_ratings(conn):
+    print "Waiting for socket 6000"
+
+    s.listen(1)
+
+    conn, addr = s.accept()
+
+    print "Socket accepted"
+
     # sends a random number of ratings (between 20-100 for a handful of movie)
     # comma delimited
     print "Sending ratings"
-    for x in range(random.randint(20, 100)):
-        rating = random.randint(1, 5)
-        movie_id = random.randint(1, 50)
-        user_id = random.randint(1, 1000)
-        conn.sendall("{}::{}::{}::{}\n".format(user_id, movie_id, rating, time.time()))
-
-
-# when connected, generate movie ratings data
-for x in range(1000):
-    send_ratings(conn)
-    time.sleep(.2)
+    for line in fp:
+        (user_id, movie_id, rating, ts) = line.split("::")
+        msg = "{}::{}::{}::{}\n".format(user_id, movie_id, rating, time.time())
+        conn.sendall(msg)
